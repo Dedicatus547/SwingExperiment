@@ -1,39 +1,32 @@
 package Client;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 
 /**
  * Created by Dedicatus on 2016/10/14.
  */
-public class ClientSocket extends Socket {
-    private InputStream is = null;
-    private OutputStream os = null;
+public class ClientSocket {
+    private Socket client = new Socket();
+    private DataInputStream is = null;
+    private DataOutputStream os = null;
+    public boolean isConnect() {
+        return client.isConnected();
+    }
+    public void join(String ip,String port) throws IOException {
+        SocketAddress addr = new InetSocketAddress(ip,Integer.parseInt(port));
+        client.connect(addr,60000);
+        os = new DataOutputStream(client.getOutputStream());
+        is = new DataInputStream(client.getInputStream());
+    }
     public void say(String sendStr) throws IOException {
-        try {
-            os = getOutputStream();
-            os.write(sendStr.getBytes());
-        }
-        finally {
-            os.close();
-        }
+        os.writeUTF(sendStr);
     }
     public String receive() throws IOException {
-        String ret = new String();
-        try {
-            is = getInputStream();
-            byte[] b = new byte[1024];
-            int n = is.read(b,0,b.length);
-            while(n != -1) {
-                ret += b.toString();
-                n = is.read(b,0,b.length);
-            }
-        }
-        finally {
-            is.close();
-        }
-        return ret;
+        return is.readUTF();
     }
 }

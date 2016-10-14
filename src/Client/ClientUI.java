@@ -5,8 +5,6 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
 /**
  * Created by Dedicatus on 2016/10/13.
@@ -18,7 +16,7 @@ public class ClientUI extends JFrame {
     private JTextField port = new JTextField(15);
     private JTextField severIP = new JTextField(15);
     private JTextField sayField = new JTextField(40);
-    private JTextArea txt = new JTextArea(20, 60);
+    private JTextArea txt = new JTextArea(17, 55);
     private JLabel ipLabel = new JLabel("Server IP: ");
     private JLabel portLabel = new JLabel("Server Port: ");
     private JLabel sayLabel = new JLabel("Say: ");
@@ -26,24 +24,17 @@ public class ClientUI extends JFrame {
         connect.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(socket.isConnected()) {
-                    txt.setText("Client connected…");
-                }
-                else {
+                if(!socket.isConnect()) {
                     try {
-                        txt.setText("Connect to server…");
-                        String IP = severIP.getText();
-                        String Port = port.getText();
-                        SocketAddress addr = new InetSocketAddress(IP,Integer.parseInt(Port));
-                        socket.connect(addr,60000);
-                        txt.setText("Client connected…");
+                        txt.setText("Connect to server…\n");
+                        socket.join(severIP.getText(),port.getText());
                         Runnable receive = new Runnable() {
                             @Override
                             public void run() {
                                 while (true) {
                                     try{
                                         String message = socket.receive();
-                                        txt.append("\n" + message);
+                                        txt.append(message + "\n");
                                     }
                                     catch (Exception ex) {
                                         ex.printStackTrace();
@@ -63,7 +54,8 @@ public class ClientUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    socket.say(say.getText());
+                    socket.say(sayField.getText());
+                    sayField.setText("");
                 }
                 catch (Exception ex) {
                     ex.printStackTrace();
