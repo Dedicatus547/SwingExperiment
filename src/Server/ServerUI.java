@@ -15,14 +15,14 @@ import java.util.LinkedList;
  * Created by Dedicatus on 2016/10/14.
  */
 public class ServerUI extends JFrame {
-    JButton start = new JButton("Start");
-    JButton say = new JButton("Say");
-    JTextField portField = new JTextField(40);
-    JTextField sayField = new JTextField(40);
+    private JButton start = new JButton("Start");
+    private JButton say = new JButton("Say");
+    private JTextField portField = new JTextField(40);
+    private JTextField sayField = new JTextField(40);
+    private JLabel portLabel = new JLabel("Port: ");
+    private JLabel sayLabel = new JLabel("Say: ");
+    private ServerSocket server = null;
     JTextArea txt = new JTextArea(17, 55);
-    JLabel portLabel = new JLabel("Port: ");
-    JLabel sayLabel = new JLabel("Say: ");
-    ServerSocket server = null;
     LinkedList<Socket> SocketSet = new LinkedList<>();
 
     public ServerUI() {
