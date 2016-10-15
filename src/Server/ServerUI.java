@@ -5,7 +5,6 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -16,45 +15,21 @@ import java.util.LinkedList;
  * Created by Dedicatus on 2016/10/14.
  */
 public class ServerUI extends JFrame {
-    private JButton start = new JButton("Start");
-    private JButton say = new JButton("Say");
-    private JTextField portField = new JTextField(40);
-    private JTextField sayField = new JTextField(40);
-    private JTextArea txt = new JTextArea(17,55);
-    private JLabel portLabel = new JLabel("Port: ");
-    private JLabel sayLabel = new JLabel("Say: ");
-    private ServerSocket server = null;
-    private LinkedList<DataOutputStream> osSet = new LinkedList<>();
-    class clientThread extends Thread {
-        Socket client;
-        DataInputStream is;
-        DataOutputStream os;
-        clientThread(Socket client,
-                     DataInputStream is,
-                     DataOutputStream os) {
-            this.client = client;
-            this.is = is;
-            this.os = os;
-        }
-        @Override
-        public void run() {
-            while (true) {
-                try {
-                    String message = is.readUTF();
-                    txt.append(message + "\n");
-                    for (DataOutputStream out : osSet)
-                        out.writeUTF(message);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-    }
+    JButton start = new JButton("Start");
+    JButton say = new JButton("Say");
+    JTextField portField = new JTextField(40);
+    JTextField sayField = new JTextField(40);
+    JTextArea txt = new JTextArea(17, 55);
+    JLabel portLabel = new JLabel("Port: ");
+    JLabel sayLabel = new JLabel("Say: ");
+    ServerSocket server = null;
+    LinkedList<Socket> SocketSet = new LinkedList<>();
+
     public ServerUI() {
         start.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(server == null) {
+                if (server == null) {
                     int port = Integer.parseInt(portField.getText());
                     try {
                         server = new ServerSocket(port);
@@ -64,25 +39,19 @@ public class ServerUI extends JFrame {
                             public void run() {
                                 while (true) {
                                     Socket client = null;
-                                    DataInputStream is = null;
-                                    DataOutputStream os = null;
                                     try {
                                         client = server.accept();
                                         txt.append("Client connected…\n");
-                                        is = new DataInputStream(client.getInputStream());
-                                        os = new DataOutputStream(client.getOutputStream());
-                                        osSet.add(os);
-                                    }
-                                    catch (IOException ex) {
+                                        SocketSet.add(client);
+                                        new Thread(new clientThread(client, ServerUI.this)).start();
+                                    } catch (IOException ex) {
                                         ex.printStackTrace();
                                     }
-                                    new clientThread(client,is,os).start();
                                 }
                             }
                         };
                         new Thread(Lisen).start();
-                    }
-                    catch (IOException ex) {
+                    } catch (IOException ex) {
                         ex.printStackTrace();
                     }
                 }
@@ -94,11 +63,12 @@ public class ServerUI extends JFrame {
                 String message = sayField.getText();
                 sayField.setText("");
                 txt.append(message + "\n");
-                for(DataOutputStream out : osSet) {
+                DataOutputStream os = null;
+                for (Socket each : SocketSet) {
                     try {
-                        out.writeUTF(message);
-                    }
-                    catch (IOException ex) {
+                        os = new DataOutputStream(each.getOutputStream());
+                        os.writeUTF(message);
+                    } catch (IOException ex) {
                         ex.printStackTrace();
                     }
                 }

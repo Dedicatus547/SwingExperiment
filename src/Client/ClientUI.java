@@ -20,46 +20,33 @@ public class ClientUI extends JFrame {
     private JLabel ipLabel = new JLabel("Server IP: ");
     private JLabel portLabel = new JLabel("Server Port: ");
     private JLabel sayLabel = new JLabel("Say: ");
+
     public ClientUI() {
         connect.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(!socket.isConnect()) {
-                    try {
-                        txt.setText("Connect to server…\n");
-                        socket.join(severIP.getText(),port.getText());
-                        Runnable receive = new Runnable() {
-                            @Override
-                            public void run() {
-                                while (true) {
-                                    try{
-                                        String message = socket.receive();
-                                        txt.append(message + "\n");
-                                    }
-                                    catch (Exception ex) {
-                                        ex.printStackTrace();
-                                    }
-                                }
+                if (!socket.isConnect()) {
+                    txt.setText("Connect to server…\n");
+                    socket.join(severIP.getText(), port.getText());
+                    Runnable receive = new Runnable() {
+                        @Override
+                        public void run() {
+                            while (true) {
+                                String message = socket.receive();
+                                if(message == null) continue;
+                                txt.append(message + "\n");
                             }
-                        };
-                        new Thread(receive).start();
-                    }
-                    catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
+                        }
+                    };
+                    new Thread(receive).start();
                 }
             }
         });
         say.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    socket.say(sayField.getText());
-                    sayField.setText("");
-                }
-                catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+                socket.say(sayField.getText());
+                sayField.setText("");
             }
         });
         setLayout(new FlowLayout());
