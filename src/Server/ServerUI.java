@@ -38,7 +38,7 @@ public class ServerUI extends JFrame {
                             @Override
                             public void run() {
                                 while (true) {
-                                    Socket client = null;
+                                    Socket client;
                                     try {
                                         client = server.accept();
                                         txt.append("Client connected…\n");

@@ -20,8 +20,8 @@ public class clientThread implements Runnable {
     @Override
     public void run() {
         while (true) {
-            DataInputStream is = null;
-            String message = null;
+            DataInputStream is;
+            String message;
             try {
                 is = new DataInputStream(client.getInputStream());
                 message = is.readUTF();
